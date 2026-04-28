@@ -66,5 +66,5 @@ build/
 ### Mac OS ###
 .DS_Store
 
-data/
+zenon-fraud-detector/data/
 

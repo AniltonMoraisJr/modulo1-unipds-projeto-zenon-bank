@@ -1,4 +1,4 @@
-package br.com.zenon.zenonfrauddetector.transaction.model;
+package br.com.zenon.zenonfrauddetector.domain.transaction;
 
 public enum TransactionType {
   CASH_IN,
