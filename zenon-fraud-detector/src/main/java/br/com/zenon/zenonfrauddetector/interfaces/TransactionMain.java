@@ -1,8 +1,10 @@
-package br.com.zenon.zenonfrauddetector.transaction;
+package br.com.zenon.zenonfrauddetector.interfaces;
 
-import br.com.zenon.zenonfrauddetector.transaction.model.Customer;
-import br.com.zenon.zenonfrauddetector.transaction.model.Transaction;
-import br.com.zenon.zenonfrauddetector.transaction.model.TransactionType;
+import br.com.zenon.zenonfrauddetector.application.GetTransactionsService;
+import br.com.zenon.zenonfrauddetector.domain.transaction.Customer;
+import br.com.zenon.zenonfrauddetector.domain.transaction.Transaction;
+import br.com.zenon.zenonfrauddetector.domain.transaction.TransactionType;
+import br.com.zenon.zenonfrauddetector.infrastructure.file.TransactionIngestor;
 import java.math.BigDecimal;
 
 public class TransactionMain {
@@ -22,5 +24,9 @@ public class TransactionMain {
         false, true
     );
     System.out.println(transaction2);
+    System.out.println("-------------------------------------------------------");
+    System.out.println("Getting the first 10 transactions");
+    GetTransactionsService getTransactionsService = new GetTransactionsService(new TransactionIngestor());
+    getTransactionsService.getTransactions("data/data_log.csv").subList(0,10).forEach(System.out::println);
   }
 }
