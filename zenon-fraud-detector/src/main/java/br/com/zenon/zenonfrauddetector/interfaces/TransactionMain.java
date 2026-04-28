@@ -1,11 +1,13 @@
 package br.com.zenon.zenonfrauddetector.interfaces;
 
+import br.com.zenon.zenonfrauddetector.application.FraudAnalyser;
 import br.com.zenon.zenonfrauddetector.application.GetTransactionsService;
 import br.com.zenon.zenonfrauddetector.domain.transaction.Customer;
 import br.com.zenon.zenonfrauddetector.domain.transaction.Transaction;
 import br.com.zenon.zenonfrauddetector.domain.transaction.TransactionType;
 import br.com.zenon.zenonfrauddetector.infrastructure.file.TransactionIngestor;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 public class TransactionMain {
@@ -26,16 +28,22 @@ public class TransactionMain {
     );
     GetTransactionsService getTransactionsService = new GetTransactionsService(
         new TransactionIngestor());
+    final List<Transaction> transactions = getTransactionsService.getTransactions(
+        "data/data_log.csv");
     System.out.println(transaction2);
     System.out.println("-------------------------------------------------------");
     System.out.println("Getting the first 10 transactions");
-    getTransactionsService.getTransactions("data/data_log.csv").subList(0, 10)
+    transactions.subList(0, 10)
         .forEach(System.out::println);
     System.out.println("-------------------------------------------------------");
     System.out.println("Validating transactions");
     getTransactionsService
         .getTransactions("data/paysim_with_bad_data.csv")
         .forEach(System.out::println);
+    System.out.println("-------------------------------------------------------");
+    System.out.println("Analysing transactions");
+    FraudAnalyser fraudAnalyser = new FraudAnalyser();
+    fraudAnalyser.analyse(transactions);
 
   }
 }

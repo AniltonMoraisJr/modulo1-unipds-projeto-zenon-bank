@@ -16,22 +16,27 @@ import org.jspecify.annotations.NonNull;
 public class TransactionIngestor {
 
   private static final int HEADER_LINE = 0;
-  private static final int MAX_LINES = 1000;
+  private static final int MAX_LINES = 50000;
   private static final String DELIMITER = ",";
 
-  public List<Transaction> ingestTransactions(@NonNull String urlPath){
+  public List<Transaction> ingestTransactions(@NonNull String urlPath) {
     List<Transaction> transactions = List.of();
     Path path = Paths.get(urlPath);
-    try{
+    long startMillis = System.currentTimeMillis();
+    try {
       List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-      final List<String> transactionLines = lines.subList(HEADER_LINE + 1,
-          Math.min(lines.size(), MAX_LINES));
-      transactions = transactionLines.stream().map(this::parseLine)
+      transactions = lines.stream()
+          .skip((long) HEADER_LINE + 1)
+          .limit(Math.min(lines.size(), MAX_LINES))
+          .map(this::parseLine)
           .filter(Objects::nonNull).toList();
+      System.out.println(
+          "Time to ingest transactions: " + (System.currentTimeMillis() - startMillis) + ". Size: "
+              + Math.min(lines.size(), MAX_LINES));
       return transactions;
-    }catch (IOException e) {
+    } catch (IOException e) {
       throw new IllegalStateException("Could not read file", e);
-    }catch (IllegalArgumentException e){
+    } catch (IllegalArgumentException e) {
       throw e;
     }
   }
