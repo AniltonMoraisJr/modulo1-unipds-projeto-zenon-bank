@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import org.jspecify.annotations.NonNull;
 
 public class TransactionIngestor {
@@ -23,25 +24,34 @@ public class TransactionIngestor {
     Path path = Paths.get(urlPath);
     try{
       List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-      final List<String> transactionLines = lines.subList(HEADER_LINE + 1, MAX_LINES);
-      transactions = transactionLines.stream().map(this::parseLine).toList();
+      final List<String> transactionLines = lines.subList(HEADER_LINE + 1,
+          Math.min(lines.size(), MAX_LINES));
+      transactions = transactionLines.stream().map(this::parseLine)
+          .filter(Objects::nonNull).toList();
       return transactions;
     }catch (IOException e) {
       throw new IllegalStateException("Could not read file", e);
+    }catch (IllegalArgumentException e){
+      throw e;
     }
   }
 
   private Transaction parseLine(String line) {
     String[] values = line.split(DELIMITER);
-    return new Transaction(
-        Integer.parseInt(values[0]),
-        TransactionType.valueOf(values[1]),
-        new BigDecimal(values[2]),
-        new Customer(values[3], new BigDecimal(values[4]), new BigDecimal(values[5])),
-        new Customer(values[6], new BigDecimal(values[7]), new BigDecimal(values[8])),
-        !values[9].equals("1"),
-        !values[10].equals("1")
-    );
+    try {
+      return new Transaction(
+          Integer.parseInt(values[0]),
+          TransactionType.valueOf(values[1]),
+          new BigDecimal(values[2]),
+          new Customer(values[3], new BigDecimal(values[4]), new BigDecimal(values[5])),
+          new Customer(values[6], new BigDecimal(values[7]), new BigDecimal(values[8])),
+          !values[9].equals("1"),
+          !values[10].equals("1")
+      );
+    } catch (IllegalArgumentException e) {
+      System.err.println("Erro: " + line + " | " + e.getMessage());
+      return null;
+    }
   }
 
 }

@@ -6,6 +6,7 @@ import br.com.zenon.zenonfrauddetector.domain.transaction.Transaction;
 import br.com.zenon.zenonfrauddetector.domain.transaction.TransactionType;
 import br.com.zenon.zenonfrauddetector.infrastructure.file.TransactionIngestor;
 import java.math.BigDecimal;
+import java.util.Optional;
 
 public class TransactionMain {
 
@@ -23,10 +24,18 @@ public class TransactionMain {
         new Customer("C873221189", new BigDecimal("6510099.11"), new BigDecimal("7360101.63")),
         false, true
     );
+    GetTransactionsService getTransactionsService = new GetTransactionsService(
+        new TransactionIngestor());
     System.out.println(transaction2);
     System.out.println("-------------------------------------------------------");
     System.out.println("Getting the first 10 transactions");
-    GetTransactionsService getTransactionsService = new GetTransactionsService(new TransactionIngestor());
-    getTransactionsService.getTransactions("data/data_log.csv").subList(0,10).forEach(System.out::println);
+    getTransactionsService.getTransactions("data/data_log.csv").subList(0, 10)
+        .forEach(System.out::println);
+    System.out.println("-------------------------------------------------------");
+    System.out.println("Validating transactions");
+    getTransactionsService
+        .getTransactions("data/paysim_with_bad_data.csv")
+        .forEach(System.out::println);
+
   }
 }
